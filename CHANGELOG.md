@@ -1,3 +1,15 @@
+## v0.6.2c2
+
+- Added functions to save segment sate in a temporary file.
+
+### `nvm_checker` changes
+
+The `nvm_checker` segment now checks state changes to look differently.
+
+### `vcs` changes
+
+The `vcs` segment now supports state changes to look differently.
+
 ## v0.6.2c1
 
 ### New segment `nvm_checker` added
