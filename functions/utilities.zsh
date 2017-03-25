@@ -26,6 +26,25 @@ function set_default() {
   defined "$varname" || typeset -g "$varname"="$default_value"
 }
 
+# File used to store segment states
+segment_state_file=$(mktemp /tmp/powerlevel9k-segment-states.XXXXXX)
+
+# Saves current state for a given segment.
+# Takes two arguments:
+#   * $segment - The name of the segment
+#   * $state - The current state
+function save_segment_state() {
+  sed -i "/^$1=/d" $segment_state_file
+  echo $1=$2 >> $segment_state_file
+}
+
+# Returns the state of the segment previously saved
+# Takes one argument:
+#   * $segment - The name of the segment
+function get_segment_state() {
+  cat $segment_state_file | grep -w $1 | cut -d'=' -f2
+}
+
 # Converts large memory values into a human-readable unit (e.g., bytes --> GB)
 # Takes two arguments:
 #   * $size - The number which should be prettified
