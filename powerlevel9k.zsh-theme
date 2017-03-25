@@ -664,7 +664,7 @@ prompt_dir() {
             break;
           fi
         done
-        
+
         local packageName=$(jq '.name' ${pkgFile} 2> /dev/null \
           || node -e 'console.log(require(process.argv[1]).name);' ${pkgFile} 2>/dev/null \
           || cat "${pkgFile}" 2> /dev/null | grep -m 1 "\"name\"" | awk -F ':' '{print $2}' | awk -F '"' '{print $2}' 2>/dev/null \
@@ -872,6 +872,42 @@ prompt_nvm() {
   [[ "$node_version" =~ "$nvm_default" ]] && return
 
   $1_prompt_segment "$0" "$2" "green" "011" "${node_version:1}" 'NODE_ICON'
+}
+
+# Node version from NVM
+# Only prints the segment if .nvmrc exists, and compare it to current version
+prompt_nvm_checker() {
+  [[ ! $(type nvm) =~ 'nvm is a shell function'* ]] && return
+
+  local node_version=$(nvm current)
+  node_version=${node_version:1}
+  [[ -z "${node_version}" ]] || [[ ${node_version} = "none" ]] && return
+
+  local content=''
+  local current_state=''
+  typeset -AH nvm_checker_states
+  nvm_checker_states=(
+    "OK"      "yellow"
+    "WARNING" "red"
+  )
+
+  if [[ -f ".nvmrc" ]]; then
+    local node_version_required=$(cat .nvmrc)
+
+    if [[ "${node_version_required:0:1}" = "v" ]]; then
+        node_version_required=${node_version_required:1}
+    fi
+
+    if [[ "$node_version_required" == "$node_version" ]]; then
+        current_state='OK'
+        content="$node_version"
+    else
+        current_state='WARNING'
+        content="$node_version"
+    fi
+
+    "$1_prompt_segment" "${0}_${current_state}" "$2" "${nvm_checker_states[$current_state]}" "$DEFAULT_COLOR" "${content}" 'NVM_CHECKER_ICON'
+  fi
 }
 
 # NodeEnv Prompt
