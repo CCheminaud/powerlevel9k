@@ -883,13 +883,17 @@ prompt_nvm_checker() {
   node_version=${node_version:1}
   [[ -z "${node_version}" ]] || [[ ${node_version} = "none" ]] && return
 
-  local content=''
-  local current_state=''
   typeset -AH nvm_checker_states
   nvm_checker_states=(
-    "OK"      "yellow"
-    "WARNING" "red"
+    "OK"            "yellow"
+    "OK_AGAIN"      "yellow"
+    "WARNING"       "red"
+    "WARNING_AGAIN" "red"
   )
+
+  local content=''
+  local current_state=''
+  local last_state=$(get_segment_state ${0})
 
   if [[ -f ".nvmrc" ]]; then
     local node_version_required=$(cat .nvmrc)
@@ -904,6 +908,11 @@ prompt_nvm_checker() {
     else
         current_state='WARNING'
         content="$node_version"
+    fi
+
+    save_segment_state "$0" "$current_state"
+    if [[ "$current_state" == "$last_state" ]]; then
+      current_state+="_AGAIN"
     fi
 
     "$1_prompt_segment" "${0}_${current_state}" "$2" "${nvm_checker_states[$current_state]}" "$DEFAULT_COLOR" "${content}" 'NVM_CHECKER_ICON'
@@ -1141,9 +1150,12 @@ powerlevel9k_vcs_init() {
   # The vcs segment can have three different states - defaults to 'clean'.
   typeset -gAH vcs_states
   vcs_states=(
-    'clean'         'green'
-    'modified'      'yellow'
-    'untracked'     'green'
+    'clean'           'green'
+    'clean_again'     'green'
+    'modified'        'yellow'
+    'modified_again'  'yellow'
+    'untracked'       'green'
+    'untracked_again' 'green'
   )
 
   VCS_CHANGESET_PREFIX=''
@@ -1184,7 +1196,8 @@ powerlevel9k_vcs_init() {
 prompt_vcs() {
   VCS_WORKDIR_DIRTY=false
   VCS_WORKDIR_HALF_DIRTY=false
-  current_state=""
+  local last_state=$(get_segment_state ${0})
+  local current_state=""
 
   # Actually invoke vcs_info manually to gather all information.
   vcs_info
@@ -1202,6 +1215,12 @@ prompt_vcs() {
         current_state='clean'
       fi
     fi
+
+    save_segment_state "$0" "$current_state"
+    if [[ "$current_state" == "$last_state" ]]; then
+      current_state+="_again"
+    fi
+
     "$1_prompt_segment" "${0}_${(U)current_state}" "$2" "${vcs_states[$current_state]}" "$DEFAULT_COLOR" "$vcs_prompt" "$vcs_visual_identifier"
   fi
 }
