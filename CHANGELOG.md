@@ -1,3 +1,9 @@
+## v0.6.2c1
+
+### New segment `nvm_checker` added
+
+This segment detects if there is a .nvmrc file in the current directory, and compare the required version with the current version.
+
 ## v0.6.2
 
 - Fixed some issues with the new `nerdfont-fontconfig` option.
