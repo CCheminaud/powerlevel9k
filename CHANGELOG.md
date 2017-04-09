@@ -1,3 +1,7 @@
+## v0.6.2c3
+
+- Fix segment states on MacOS
+
 ## v0.6.2c2
 
 - Added functions to save segment sate in a temporary file.
