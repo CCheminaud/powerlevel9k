@@ -34,7 +34,7 @@ segment_state_file=$(mktemp /tmp/powerlevel9k-segment-states.XXXXXX)
 #   * $segment - The name of the segment
 #   * $state - The current state
 function save_segment_state() {
-  sed -i "/^$1=/d" $segment_state_file
+  sed -i -e "/^$1=/d" $segment_state_file
   echo $1=$2 >> $segment_state_file
 }
 
